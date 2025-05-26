@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
 
 const openai = new OpenAI({
-  apiKey: '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',
+  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY || 'dummy-key-for-build',
   dangerouslyAllowBrowser: true
 });
 
@@ -22,6 +22,11 @@ export interface GeneratedScenario {
 }
 
 export async function generateNewScenario(): Promise<GeneratedScenario> {
+  if (!process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
+    console.warn('OpenAI API key not found, using fallback scenario');
+    return getFallbackScenario();
+  }
+
   const prompt = `
 당신은 "심리측정학적 도구 설계 전문가"입니다. 성격 차원을 정확히 측정하는 시나리오를 제작합니다.
 

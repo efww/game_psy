@@ -25,14 +25,19 @@ import {
   getDomainDimension
 } from '@/lib/dimension-analyzer';
 
-// 하드코딩된 API 키 (POC용)
+// OpenAI 클라이언트 초기화
 const openai = new OpenAI({
-  apiKey: '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',
+  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY || 'dummy-key-for-build',
   dangerouslyAllowBrowser: true // 브라우저에서 실행 허용 (POC용)
 });
 
 
 export async function generateBasicAnalysis(session: GameSession): Promise<string> {
+  if (!process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
+    console.warn('OpenAI API key not found, using fallback analysis');
+    return getFallbackAnalysis(session.choices);
+  }
+
   const prompt = `
 당신은 "심리 측정 분석 전문가"입니다. 성격 차원 측정과 행동 예측에 특화되어 있습니다.
 
@@ -84,6 +89,11 @@ export async function generateAreaRecommendations(
   session: GameSession, 
   basicAnalysis: string
 ): Promise<AreaRecommendation[]> {
+  if (!process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
+    console.warn('OpenAI API key not found, using fallback recommendations');
+    return getFallbackRecommendations(session.choices);
+  }
+
   const prompt = `
 당신은 "분야별 심리 분석 전문가"입니다. 흥미로운 심층 분석 분야를 추천합니다.
 
@@ -145,6 +155,11 @@ export async function generateAreaDilemmas(
   area: string,
   session: GameSession
 ): Promise<any> {
+  if (!process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
+    console.warn('OpenAI API key not found, using fallback dilemmas');
+    return getFallbackDilemmas(area);
+  }
+
   const areaDescriptions = {
     love: "연애와 관계",
     work: "직장과 커리어",
@@ -221,6 +236,11 @@ export async function generateDeepAnalysis(
   basicAnalysis: string,
   session: GameSession
 ): Promise<string> {
+  if (!process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
+    console.warn('OpenAI API key not found, using fallback deep analysis');
+    return getFallbackDeepAnalysis(area, areaChoices);
+  }
+
   const areaDescriptions = {
     love: "연애와 관계",
     work: "직장과 커리어",
