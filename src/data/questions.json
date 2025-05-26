@@ -1,0 +1,158 @@
+{
+  "additionalQuestions": [
+    {
+      "id": "emotion_state",
+      "question": "극한 상황에서 가장 먼저 떠오르는 감정은?",
+      "choices": [
+        {
+          "id": "anxiety",
+          "text": "불안과 두려움",
+          "weight": {"emotional": 0.8, "rational": 0.2}
+        },
+        {
+          "id": "excitement",
+          "text": "흥분과 아드레날린",
+          "weight": {"emotional": 0.3, "rational": 0.7}
+        },
+        {
+          "id": "calm",
+          "text": "침착함과 냉정함",
+          "weight": {"emotional": 0.1, "rational": 0.9}
+        },
+        {
+          "id": "anger",
+          "text": "분노와 억울함",
+          "weight": {"emotional": 0.9, "rational": 0.1}
+        }
+      ]
+    },
+    {
+      "id": "responsibility",
+      "question": "선택의 결과에 대한 책임은 누구에게 있다고 생각하나요?",
+      "choices": [
+        {
+          "id": "self_responsibility",
+          "text": "전적으로 나에게 있다",
+          "weight": {"individualistic": 0.9, "collectivistic": 0.1}
+        },
+        {
+          "id": "shared_responsibility",
+          "text": "상황과 환경에도 책임이 있다",
+          "weight": {"individualistic": 0.5, "collectivistic": 0.5}
+        },
+        {
+          "id": "fate_responsibility",
+          "text": "운명이나 우연의 영역이다",
+          "weight": {"individualistic": 0.2, "collectivistic": 0.8}
+        },
+        {
+          "id": "no_responsibility",
+          "text": "극한 상황에선 책임을 물을 수 없다",
+          "weight": {"individualistic": 0.3, "collectivistic": 0.7}
+        }
+      ]
+    },
+    {
+      "id": "decision_style",
+      "question": "중요한 결정을 내릴 때 당신의 스타일은?",
+      "choices": [
+        {
+          "id": "intuitive",
+          "text": "직감과 본능을 따른다",
+          "weight": {"intuitive": 0.9, "analytical": 0.1}
+        },
+        {
+          "id": "calculate",
+          "text": "모든 가능성을 계산한다",
+          "weight": {"intuitive": 0.1, "analytical": 0.9}
+        },
+        {
+          "id": "consult",
+          "text": "신뢰하는 사람들과 상의한다",
+          "weight": {"intuitive": 0.4, "analytical": 0.6}
+        },
+        {
+          "id": "postpone",
+          "text": "최대한 결정을 미룬다",
+          "weight": {"intuitive": 0.6, "analytical": 0.4}
+        }
+      ]
+    },
+    {
+      "id": "moral_flexibility",
+      "question": "극한 상황에서 평소의 도덕관념은 어떻게 되나요?",
+      "choices": [
+        {
+          "id": "unchanged",
+          "text": "어떤 상황에서도 변하지 않는다",
+          "weight": {"rigid": 0.9, "flexible": 0.1}
+        },
+        {
+          "id": "flexible",
+          "text": "생존이 우선이므로 유연해진다",
+          "weight": {"rigid": 0.2, "flexible": 0.8}
+        },
+        {
+          "id": "stronger",
+          "text": "오히려 더 강해진다",
+          "weight": {"rigid": 0.7, "flexible": 0.3}
+        },
+        {
+          "id": "confused",
+          "text": "혼란스러워서 판단이 어렵다",
+          "weight": {"rigid": 0.5, "flexible": 0.5}
+        }
+      ]
+    }
+  ],
+  "deepDiveAreas": [
+    {
+      "id": "love",
+      "title": "💕 연애할 때의 나",
+      "icon": "Heart",
+      "description": "사랑 앞에서 당신의 진짜 모습은?"
+    },
+    {
+      "id": "work",
+      "title": "💼 직장에서의 나",
+      "icon": "Briefcase",
+      "description": "일할 때 드러나는 당신의 성격은?"
+    },
+    {
+      "id": "friend",
+      "title": "👥 친구관계 속의 나",
+      "icon": "Users",
+      "description": "친구들과 함께일 때의 당신은?"
+    },
+    {
+      "id": "money",
+      "title": "💰 돈 앞에서의 나",
+      "icon": "DollarSign",
+      "description": "경제적 선택에서 보이는 가치관은?"
+    },
+    {
+      "id": "family",
+      "title": "🏠 가족 앞에서의 나",
+      "icon": "Home",
+      "description": "가족과 함께일 때의 진짜 모습은?"
+    },
+    {
+      "id": "stress",
+      "title": "😤 스트레스받을 때의 나",
+      "icon": "AlertCircle",
+      "description": "압박 상황에서 나타나는 성격은?"
+    },
+    {
+      "id": "moral",
+      "title": "⚖️ 도덕적 딜레마 속의 나",
+      "icon": "Scale",
+      "description": "윤리적 선택 앞에서의 당신은?"
+    },
+    {
+      "id": "future",
+      "title": "🎯 미래를 계획하는 나",
+      "icon": "Target",
+      "description": "장기적 관점에서 보는 당신은?"
+    }
+  ]
+}

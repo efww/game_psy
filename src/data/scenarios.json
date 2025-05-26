@@ -1,0 +1,114 @@
+{
+  "scenarios": [
+    {
+      "id": "extremeSurvival",
+      "title": "극한 생존 시나리오",
+      "description": "생존의 갈림길에서 당신의 선택은?",
+      "rounds": [
+      {
+        "id": "round1",
+        "situation": "🏝️ 무인도에 표류했습니다. 구조 신호를 보낼 수 있는 기회가 딱 한 번 있습니다. 그런데 같이 표류한 5명 중 당신만 구조될 수 있습니다. 어떻게 하시겠습니까?",
+        "choices": [
+          {
+            "id": "A",
+            "text": "혼자라도 살아남기 위해 몰래 구조 신호를 보낸다",
+            "traits": ["self_preservation", "pragmatic"]
+          },
+          {
+            "id": "B",
+            "text": "모두에게 상황을 알리고 함께 결정한다",
+            "traits": ["democratic", "ethical"]
+          },
+          {
+            "id": "C",
+            "text": "가장 생존 가능성이 높은 사람을 선택해 보낸다",
+            "traits": ["utilitarian", "logical"]
+          },
+          {
+            "id": "D",
+            "text": "아무도 보내지 않고 모두 함께 다른 방법을 찾는다",
+            "traits": ["idealistic", "risk_taking"]
+          }
+        ]
+      },
+      {
+        "id": "round2",
+        "situation": "🔥 건물에 화재가 발생했습니다. 탈출하면서 한 사람만 구할 수 있습니다. 방 안에는 당신의 상사, 임신한 동료, 노인, 그리고 어린아이가 있습니다. 누구를 구하시겠습니까?",
+        "choices": [
+          {
+            "id": "A",
+            "text": "미래가 있는 어린아이를 구한다",
+            "traits": ["future_oriented", "protective"]
+          },
+          {
+            "id": "B",
+            "text": "두 생명을 살릴 수 있는 임신한 동료를 구한다",
+            "traits": ["utilitarian", "calculated"]
+          },
+          {
+            "id": "C",
+            "text": "가장 가까운 사람부터 구한다",
+            "traits": ["practical", "instinctive"]
+          },
+          {
+            "id": "D",
+            "text": "모두를 구하려고 시도한다",
+            "traits": ["heroic", "emotional"]
+          }
+        ]
+      },
+      {
+        "id": "round3",
+        "situation": "💊 치명적인 전염병이 돌고 있습니다. 당신은 유일한 치료제를 가지고 있지만 한 명분밖에 없습니다. 가족, 연인, 절친, 당신 중 누구에게 사용하시겠습니까?",
+        "choices": [
+          {
+            "id": "A",
+            "text": "내가 살아야 다른 사람도 도울 수 있으니 나에게 사용한다",
+            "traits": ["self_focused", "strategic"]
+          },
+          {
+            "id": "B",
+            "text": "가장 사랑하는 연인에게 사용한다",
+            "traits": ["emotional", "romantic"]
+          },
+          {
+            "id": "C",
+            "text": "객관적으로 생존 확률이 가장 높은 사람에게 사용한다",
+            "traits": ["rational", "detached"]
+          },
+          {
+            "id": "D",
+            "text": "치료제를 나눠서라도 모두에게 조금씩 사용해본다",
+            "traits": ["hopeful", "experimental"]
+          }
+        ]
+      },
+      {
+        "id": "round4",
+        "situation": "⚡ 100억 로또에 당첨되었습니다. 하지만 알고 보니 실수로 다른 사람이 산 복권이었습니다. 아무도 이 사실을 모릅니다. 어떻게 하시겠습니까?",
+        "choices": [
+          {
+            "id": "A",
+            "text": "양심의 가책 없이 내가 가진다",
+            "traits": ["opportunistic", "amoral"]
+          },
+          {
+            "id": "B",
+            "text": "원래 주인을 찾아 돌려준다",
+            "traits": ["honest", "principled"]
+          },
+          {
+            "id": "C",
+            "text": "반반 나누자고 제안한다",
+            "traits": ["compromising", "fair"]
+          },
+          {
+            "id": "D",
+            "text": "전액을 기부한다",
+            "traits": ["altruistic", "detached"]
+          }
+        ]
+      }
+    ]
+  }
+}
