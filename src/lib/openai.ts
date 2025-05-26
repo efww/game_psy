@@ -25,6 +25,11 @@ import {
 } from '@/lib/dimension-analyzer';
 
 export async function generateBasicAnalysis(session: GameSession): Promise<string> {
+  // 임시로 완전 fallback 모드 (Vercel 배포 문제 해결 중)
+  console.warn('Using fallback analysis - API route debugging in progress');
+  return getFallbackAnalysis(session.choices);
+  
+  /* API 호출 코드 (임시 비활성화)
   try {
     const response = await fetch('/api/analysis', {
       method: 'POST',
@@ -44,6 +49,7 @@ export async function generateBasicAnalysis(session: GameSession): Promise<strin
     console.error('Analysis API Error:', error);
     return getFallbackAnalysis(session.choices);
   }
+  */
 }
 
 export async function generateAreaRecommendations(
