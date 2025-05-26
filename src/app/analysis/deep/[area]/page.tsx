@@ -50,6 +50,11 @@ export default function DeepAnalysisPage({ params }: PageProps) {
       setCurrentDilemmaIndex(currentDilemmaIndex + 1);
     } else {
       // 모든 딜레마 완료 - 심화 분석 생성
+      if (!session) {
+        router.push('/');
+        return;
+      }
+      
       setIsLoading(true);
       const basicAnalysis = analyses.find(a => a.type === 'basic')?.content || '';
       const analysis = await generateDeepAnalysis(params.area, newChoices, basicAnalysis, session);
