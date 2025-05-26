@@ -1,4 +1,3 @@
-import OpenAI from 'openai';
 import { GameSession, AreaRecommendation } from '@/types/game';
 import {
   getMoralFoundationMapping,
@@ -25,62 +24,24 @@ import {
   getDomainDimension
 } from '@/lib/dimension-analyzer';
 
-// OpenAI 클라이언트 초기화
-const openai = new OpenAI({
-  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY || 'dummy-key-for-build',
-  dangerouslyAllowBrowser: true // 브라우저에서 실행 허용 (POC용)
-});
-
-
 export async function generateBasicAnalysis(session: GameSession): Promise<string> {
-  if (!process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
-    console.warn('OpenAI API key not found, using fallback analysis');
-    return getFallbackAnalysis(session.choices);
-  }
-
-  const prompt = `
-당신은 "심리 측정 분석 전문가"입니다. 성격 차원 측정과 행동 예측에 특화되어 있습니다.
-
-선택 순서: ${session.choices.join(', ')} (4라운드: A-D 선택)
-결정 소요시간: ${session.choiceTimings.map(t => `${(t/1000).toFixed(1)}초`).join(', ')}
-
-중요: 모든 출력은 반드시 한글로만 작성하세요. 영어 단어나 표현 절대 금지.
-
-## **[성격 유형]**
-- 8-12자 (공백 포함)
-- 재미있고 개성 있는 표현 사용
-- 예시: "감성적 전략가", "신중한 리더", "유쾌한 협력자"
-
-### 이런 사람이야
-- **[특성1]**: 구체적이고 재미있는 설명 (40-50자)
-- **[특성2]**: 구체적이고 재미있는 설명 (40-50자)  
-- **[특성3]**: 구체적이고 재미있는 설명 (40-50자)
-
-### 현실에서는
-- [상황1]: 예상 행동 패턴 (45-55자)
-- [상황2]: 예상 행동 패턴 (45-55자)
-
-**한 줄 요약**: 강렬하고 개성 있는 마무리 (30-40자)
-
-출력 요구사항:
-- 친근하고 재미있는 반말 톤
-- 총 길이 300-350자
-- 중요 키워드 **굵게** 강조
-- "어? 나한테 이런 면이?" 같은 놀라움 요소 포함
-- 버즈피드 퀴즈 같은 재미와 개성
-`;
-
   try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4.1-nano",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.7,
-      max_tokens: 600
+    const response = await fetch('/api/analysis', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(session),
     });
 
-    return completion.choices[0].message.content || getFallbackAnalysis(session.choices);
+    if (!response.ok) {
+      throw new Error('API request failed');
+    }
+
+    const data = await response.json();
+    return data.analysis;
   } catch (error) {
-    console.error('OpenAI API Error:', error);
+    console.error('Analysis API Error:', error);
     return getFallbackAnalysis(session.choices);
   }
 }
@@ -89,145 +50,18 @@ export async function generateAreaRecommendations(
   session: GameSession, 
   basicAnalysis: string
 ): Promise<AreaRecommendation[]> {
-  if (!process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
-    console.warn('OpenAI API key not found, using fallback recommendations');
-    return getFallbackRecommendations(session.choices);
-  }
-
-  const prompt = `
-당신은 "분야별 심리 분석 전문가"입니다. 흥미로운 심층 분석 분야를 추천합니다.
-
-사용자 성격 분석: ${basicAnalysis}
-
-측정된 성격 차원:
-- 개인주의/집단주의: ${calculateICDimension(session.choices)}% 
-- 감정적/이성적: ${calculateERDimension(session.choices)}%
-- 위험감수/안전추구: ${calculateTSDimension(session.choices)}%  
-- 원칙중심/상황중심: ${calculatePFDimension(session.choices)}%
-
-8개 분야 중 가장 흥미로운 3개를 JSON으로 추천하세요:
-
-💕 연애할 때의 나 (love) - 애착 스타일과 관계 패턴
-💼 직장에서의 나 (work) - 리더십과 업무 동기
-👥 친구관계 속의 나 (friend) - 사회적 정체성과 집단 역학
-💰 돈 앞에서의 나 (money) - 경제적 의사결정과 위험 선호
-🏠 가족 앞에서의 나 (family) - 가족 역할과 전통 가치
-😤 스트레스받을 때의 나 (stress) - 대처 메커니즘과 회복력
-⚖️ 도덕적 딜레마 속의 나 (moral) - 윤리적 추론과 가치관
-🎯 미래를 계획하는 나 (future) - 시간 관점과 목표 설정
-
-중요: 모든 출력은 반드시 한글로만 작성하세요.
-
-JSON 형식:
-{
-  "recommendations": [
-    {"area": "love", "reason": "개인차원과 관계 역학의 흥미로운 조합", "hook": "연애할 때 완전 다른 사람이 될까?"},
-    {"area": "work", "reason": "집단성향과 리더십 발현의 독특한 패턴", "hook": "직장에서는 어떤 리더가 될까?"},
-    {"area": "stress", "reason": "평상시와 압박상황의 극명한 차이", "hook": "스트레스받으면 숨겨진 모습 등장?"}
-  ]
-}
-`;
-
-  try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4.1-nano",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.6,
-      max_tokens: 400,
-      response_format: { type: "json_object" }
-    });
-
-    const response = JSON.parse(completion.choices[0].message.content || '{}');
-    const recommendations = response.recommendations || getFallbackRecommendations(session.choices);
-    // Transform to match expected AreaRecommendation interface
-    return recommendations.map((rec: any) => ({
-      area: rec.area,
-      reason: rec.reason || rec.reasoning,
-      hook: rec.hook || ''
-    }));
-  } catch (error) {
-    console.error('OpenAI API Error:', error);
-    return getFallbackRecommendations(session.choices);
-  }
+  // 임시로 fallback 사용 (추후 API 라우트 추가 예정)
+  console.warn('Using fallback recommendations - API route not implemented yet');
+  return getFallbackRecommendations(session.choices);
 }
 
 export async function generateAreaDilemmas(
   area: string,
   session: GameSession
 ): Promise<any> {
-  if (!process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
-    console.warn('OpenAI API key not found, using fallback dilemmas');
-    return getFallbackDilemmas(area);
-  }
-
-  const areaDescriptions = {
-    love: "연애와 관계",
-    work: "직장과 커리어",
-    friend: "친구 관계",
-    money: "돈과 경제적 선택",
-    family: "가족 관계",
-    stress: "스트레스 상황",
-    moral: "도덕적 선택",
-    future: "미래 계획"
-  };
-
-  const prompt = `
-당신은 "${area} 분야 상황별 딜레마 설계 전문가"입니다.
-
-기본 게임 선택: ${session.choices.join(', ')}
-분석 분야: ${areaDescriptions[area as keyof typeof areaDescriptions]}
-
-${area} 분야에 특화된 딜레마 2개를 생성하세요:
-
-상황 요구사항:
-- 일상적이고 현실적인 상황 (80-120자)
-- 구체적 숫자와 시간 제한 포함
-- 도덕적 우열 없는 4개 선택지 (20-35자)
-- 각 선택지는 서로 다른 성격 접근법 반영
-
-중요: 모든 출력은 반드시 한글로만 작성하세요.
-
-JSON 형식:
-{
-  "dilemmas": [
-    {
-      "situation": "🎯 [구체적 상황]. [인물관계]. [시간제한]. [제약조건]. (80-120자)",
-      "choices": [
-        {"id": "A", "text": "선택지 내용 (20-35자)"},
-        {"id": "B", "text": "선택지 내용 (20-35자)"},
-        {"id": "C", "text": "선택지 내용 (20-35자)"},
-        {"id": "D", "text": "선택지 내용 (20-35자)"}
-      ]
-    },
-    {
-      "situation": "🎯 [다른 상황]. [다른 관계]. [시간제한]. [제약조건]. (80-120자)",
-      "choices": [
-        {"id": "A", "text": "선택지 내용 (20-35자)"},
-        {"id": "B", "text": "선택지 내용 (20-35자)"},
-        {"id": "C", "text": "선택지 내용 (20-35자)"},
-        {"id": "D", "text": "선택지 내용 (20-35자)"}
-      ]
-    }
-  ]
-}
-`;
-
-  try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4.1-nano",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.8,
-      max_tokens: 800,
-      response_format: { type: "json_object" }
-    });
-
-    const response = JSON.parse(completion.choices[0].message.content || '{}');
-    const result = response.dilemmas || getFallbackDilemmas(area);
-    return result.dilemmas || result;
-  } catch (error) {
-    console.error('OpenAI API Error:', error);
-    return getFallbackDilemmas(area);
-  }
+  // 임시로 fallback 사용 (추후 API 라우트 추가 예정)
+  console.warn('Using fallback dilemmas - API route not implemented yet');
+  return getFallbackDilemmas(area);
 }
 
 export async function generateDeepAnalysis(
@@ -236,73 +70,9 @@ export async function generateDeepAnalysis(
   basicAnalysis: string,
   session: GameSession
 ): Promise<string> {
-  if (!process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
-    console.warn('OpenAI API key not found, using fallback deep analysis');
-    return getFallbackDeepAnalysis(area, areaChoices);
-  }
-
-  const areaDescriptions = {
-    love: "연애와 관계",
-    work: "직장과 커리어",
-    friend: "친구 관계",
-    money: "돈과 경제적 선택",
-    family: "가족 관계",
-    stress: "스트레스 상황",
-    moral: "도덕적 선택",
-    future: "미래 계획"
-  };
-
-  const prompt = `
-당신은 "${area} 분야 특화 성격 분석 전문가"입니다.
-
-기본 성격: ${basicAnalysis}
-분석 분야: ${area} (${areaDescriptions[area as keyof typeof areaDescriptions]})
-분야별 선택: ${areaChoices.join(', ')} (2개 딜레마 응답)
-기본 선택: ${session.choices.join(', ')} (비교용)
-
-${area} 분야에서의 특별한 성격 패턴을 분석하세요:
-
-중요: 모든 출력은 반드시 한글로만 작성하세요. 영어 단어나 표현 절대 금지.
-
-## **[${area} 분야 특성]**
-- 15-20자 (공백 포함)
-- 이 분야에서만 나타나는 독특한 모습 표현
-- 예시: "연애할 때는 완전 다른 사람", "돈 앞에서는 냉정한 계산기"
-
-### 숨겨진 모습들
-- **[특성1]**: 구체적이고 재미있는 설명 (50-60자)
-- **[특성2]**: 구체적이고 재미있는 설명 (50-60자)
-- **[특성3]**: 구체적이고 재미있는 설명 (50-60자)
-
-### 실제 모습  
-- **[상황1]**: 예상 행동 패턴 (45-55자)
-- **[상황2]**: 예상 행동 패턴 (45-55자)
-
-### 특별한 점
-${area} 영역에서는 전체 성격과 비교해 **[핵심 차이점과 이유]** (50-60자)
-
-출력 요구사항:
-- 친근하고 재미있는 반말 톤
-- 총 길이 320-380자
-- 중요 키워드 **굵게** 강조
-- "어? 이 분야에서는 이런 면이?" 같은 놀라움 요소
-- 구체적이고 개성 있는 행동 예측
-- 버즈피드 퀴즈 같은 재미와 개성
-`;
-
-  try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4.1-nano",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.7,
-      max_tokens: 500
-    });
-
-    return completion.choices[0].message.content || getFallbackDeepAnalysis(area, areaChoices);
-  } catch (error) {
-    console.error('OpenAI API Error:', error);
-    return getFallbackDeepAnalysis(area, areaChoices);
-  }
+  // 임시로 fallback 사용 (추후 API 라우트 추가 예정)
+  console.warn('Using fallback deep analysis - API route not implemented yet');
+  return getFallbackDeepAnalysis(area, areaChoices);
 }
 
 // Fallback 함수들
