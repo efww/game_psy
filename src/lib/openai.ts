@@ -1,3 +1,4 @@
+import OpenAI from 'openai';
 import { GameSession, AreaRecommendation } from '@/types/game';
 import {
   getMoralFoundationMapping,
@@ -24,32 +25,65 @@ import {
   getDomainDimension
 } from '@/lib/dimension-analyzer';
 
+// OpenAI 클라이언트 초기화 (임시로 클라이언트 사이드에서 사용)
+// 보안 경고가 있지만 데모 목적으로 일단 작동시킴
+const openai = new OpenAI({
+  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY || 'dummy-key-for-build',
+  dangerouslyAllowBrowser: true // 데모용 - 실제 운영에서는 서버사이드 사용 필요
+});
+
 export async function generateBasicAnalysis(session: GameSession): Promise<string> {
-  // 임시로 완전 fallback 모드 (Vercel 배포 문제 해결 중)
-  console.warn('Using fallback analysis - API route debugging in progress');
-  return getFallbackAnalysis(session.choices);
-  
-  /* API 호출 코드 (임시 비활성화)
-  try {
-    const response = await fetch('/api/analysis', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(session),
-    });
-
-    if (!response.ok) {
-      throw new Error('API request failed');
-    }
-
-    const data = await response.json();
-    return data.analysis;
-  } catch (error) {
-    console.error('Analysis API Error:', error);
+  // AI 기능 복구 - 실제 OpenAI 호출
+  if (!process.env.NEXT_PUBLIC_OPENAI_API_KEY || process.env.NEXT_PUBLIC_OPENAI_API_KEY === 'dummy-key-for-build') {
+    console.warn('OpenAI API key not found, using fallback analysis');
     return getFallbackAnalysis(session.choices);
   }
-  */
+
+  const prompt = `
+당신은 "심리 측정 분석 전문가"입니다. 성격 차원 측정과 행동 예측에 특화되어 있습니다.
+
+선택 순서: ${session.choices.join(', ')} (4라운드: A-D 선택)
+결정 소요시간: ${session.choiceTimings.map(t => `${(t/1000).toFixed(1)}초`).join(', ')}
+
+중요: 모든 출력은 반드시 한글로만 작성하세요. 영어 단어나 표현 절대 금지.
+
+## **[성격 유형]**
+- 8-12자 (공백 포함)
+- 재미있고 개성 있는 표현 사용
+- 예시: "감성적 전략가", "신중한 리더", "유쾌한 협력자"
+
+### 이런 사람이야
+- **[특성1]**: 구체적이고 재미있는 설명 (40-50자)
+- **[특성2]**: 구체적이고 재미있는 설명 (40-50자)  
+- **[특성3]**: 구체적이고 재미있는 설명 (40-50자)
+
+### 현실에서는
+- [상황1]: 예상 행동 패턴 (45-55자)
+- [상황2]: 예상 행동 패턴 (45-55자)
+
+**한 줄 요약**: 강렬하고 개성 있는 마무리 (30-40자)
+
+출력 요구사항:
+- 친근하고 재미있는 반말 톤
+- 총 길이 300-350자
+- 중요 키워드 **굵게** 강조
+- "어? 나한테 이런 면이?" 같은 놀라움 요소 포함
+- 버즈피드 퀴즈 같은 재미와 개성
+`;
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.7,
+      max_tokens: 600
+    });
+
+    return completion.choices[0].message.content || getFallbackAnalysis(session.choices);
+  } catch (error) {
+    console.error('OpenAI API Error:', error);
+    return getFallbackAnalysis(session.choices);
+  }
 }
 
 export async function generateAreaRecommendations(
